@@ -13,9 +13,13 @@ def discharge_loop(ser, load, discharge, discharge_rate):
     last = []
     lastprint = None
     lastv = None
-    lastcount = 60
+    lastcount = 10
     tah = 0
+    skip = 0
+    skipcount = 30
 
+    #      time    volts     mah
+    fmt = "{:7.2f},{:4.2f},{:6.1f}"
     while True:
         l = ser.readline()
         if not len(l):
@@ -57,8 +61,8 @@ def discharge_loop(ser, load, discharge, discharge_rate):
             # start the clock once we drop half a volt from peak
             if (peak - v) > .1:
                 print('on load!',file=stderr)
-                print('"time (m)","v","V/min","mAh"')
-                print("{:6.2f},{:4.2f},{:4.3f},{:6.1f}".format(0,peak,0,0))
+                print('"time (m)","v","mAh"')
+                print(fmt.format(0,peak,0))
                 lastprint = start = tick
                 lastv = peak
             else:
@@ -69,11 +73,12 @@ def discharge_loop(ser, load, discharge, discharge_rate):
 
         state = 0
         runtime = tick - start
-
         dvm = 0
 
         # quick and dirty noise filtering
-        if v not in last:
+        if v not in last or skip >= skipcount:
+            skip = 0
+
             # calc time delta
             dt = tick - lastprint
             lastprint = tick
@@ -88,7 +93,9 @@ def discharge_loop(ser, load, discharge, discharge_rate):
             a = v/load # this is current 'lower' voltage, err conservative
             dah = a * dt/3600 * 1000 # amp * % hour * milli
             tah = tah + dah
-            print("{:6.2f},{:4.2f},{:4.3f},{:6.1f}".format(runtime/60,v,dvm,tah))
+            print(fmt.format(runtime/60,v,tah))
+        else:
+            skip = skip + 1
 
         last.insert(0,v)
         last = last[:lastcount]
@@ -97,7 +104,7 @@ def discharge_loop(ser, load, discharge, discharge_rate):
             print('discharge reached: {:.0f} mAh consumed'.format(tah))
             break
 
-        if runtime > 10 and dvm > 3:
+        if runtime > 10 and discharge_rate is not None and dvm > discharge_rate:
             print('discharge rate reached: {:.0f} mAh consumed'.format(tah))
             break
 
@@ -106,7 +113,7 @@ if __name__ == '__main__':
     argp = argparse.ArgumentParser( description = 'battery discharge montoring' )
     argp.add_argument( '--load'      , dest='load'      , nargs='?' , type=float , default=16.1 , help="Load resistance")
     argp.add_argument( '--volt'      , dest='discharge' , nargs='?' , type=float , default=35.0 , help="Discharge end voltage")
-    argp.add_argument( '--rate'      , dest='rate'      , nargs='?' , type=float , default=5.0  , help="Discharge dv/min limit")
+    argp.add_argument( '--rate'      , dest='rate'      , nargs='?' , type=float , default=None  , help="Discharge dv/min limit")
 
     argp.add_argument( '--serial', dest='serial', nargs='?', type=str, default='/dev/ttyUSB0', help="Serial Device")
 
