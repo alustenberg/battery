@@ -55,10 +55,10 @@ def discharge_loop(ser, load, discharge, discharge_rate):
 
         if not start:
             # start the clock once we drop half a volt from peak
-            if (peak - v) > .5 or v < 42:
+            if (peak - v) > .1:
                 print('on load!',file=stderr)
                 print('"time (m)","v","V/min","mAh"')
-                print("0,{:4.2f},{:4.3f},0".format(peak,0))
+                print("{:6.2f},{:4.2f},{:4.3f},{:6.1f}".format(0,peak,0,0))
                 lastprint = start = tick
                 lastv = peak
             else:
@@ -105,10 +105,10 @@ if __name__ == '__main__':
     import argparse
     argp = argparse.ArgumentParser( description = 'battery discharge montoring' )
     argp.add_argument( '--load'      , dest='load'      , nargs='?' , type=float , default=16.1 , help="Load resistance")
-    argp.add_argument( '--volt'      , dest='discharge' , nargs='?' , type=float , default=40.0 , help="Discharge end voltage")
-    argp.add_argument( '--rate'      , dest='rate'      , nargs='?' , type=float , default=3.0  , help="Discharge dv/min limit")
+    argp.add_argument( '--volt'      , dest='discharge' , nargs='?' , type=float , default=35.0 , help="Discharge end voltage")
+    argp.add_argument( '--rate'      , dest='rate'      , nargs='?' , type=float , default=5.0  , help="Discharge dv/min limit")
 
-    argp.add_argument( '--serial', dest='serial', nargs='?', type=str, default='/dev/ttyUSB1', help="Serial Device")
+    argp.add_argument( '--serial', dest='serial', nargs='?', type=str, default='/dev/ttyUSB0', help="Serial Device")
 
     args = argp.parse_args()
 

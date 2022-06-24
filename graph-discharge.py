@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 
-max_time = 210
+max_time = 350
 
 fig = plt.figure()
 # fig.set_axisblow(True)
@@ -19,8 +19,8 @@ ax.set_xticks(range(0, max_time, 30))
 
 # ax2 = ax.twinx()
 
-ax.set_ylim([35, 50])
-ax.set_yticks(range(35, 55))
+ax.set_ylim([34, 45])
+ax.set_yticks(range(34, 45))
 ax.set_ylabel('volts')
 
 ax.grid(alpha=.3)
