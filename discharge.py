@@ -18,8 +18,8 @@ def discharge_loop(ser, load, discharge, discharge_rate):
     skip = 0
     skipcount = 30
 
-    #      time    volts     mah
-    fmt = "{:7.2f},{:4.2f},{:6.1f}"
+    #      time    volts     ah
+    fmt = "{:7.3f},{:6.2f},{:7.4f}"
     while True:
         l = ser.readline()
         if not len(l):
@@ -61,7 +61,7 @@ def discharge_loop(ser, load, discharge, discharge_rate):
             # start the clock once we drop half a volt from peak
             if (peak - v) > .1:
                 print('on load!',file=stderr)
-                print('"time (m)","v","mAh"')
+                print('"time (m)",V,Ah')
                 print(fmt.format(0,peak,0))
                 lastprint = start = tick
                 lastv = peak
@@ -80,7 +80,9 @@ def discharge_loop(ser, load, discharge, discharge_rate):
             skip = 0
 
             # calc time delta
+            # dt in seconds
             dt = tick - lastprint
+
             lastprint = tick
 
 
@@ -91,8 +93,10 @@ def discharge_loop(ser, load, discharge, discharge_rate):
 
             # calc a/hour used over time delta
             a = v/load # this is current 'lower' voltage, err conservative
-            dah = a * dt/3600 * 1000 # amp * % hour * milli
-            tah = tah + dah
+            ah = a * dt/3600
+            tah = tah + ah
+            # given time, v
+            # ah =C2+B3/16.1*(A3-A2)/60
             print(fmt.format(runtime/60,v,tah))
         else:
             skip = skip + 1
@@ -111,7 +115,7 @@ def discharge_loop(ser, load, discharge, discharge_rate):
 if __name__ == '__main__':
     import argparse
     argp = argparse.ArgumentParser( description = 'battery discharge montoring' )
-    argp.add_argument( '--load'      , dest='load'      , nargs='?' , type=float , default=16.1 , help="Load resistance")
+    argp.add_argument( '--load'      , dest='load'      , nargs='?' , type=float , default=8.2 , help="Load resistance")
     argp.add_argument( '--volt'      , dest='discharge' , nargs='?' , type=float , default=35.0 , help="Discharge end voltage")
     argp.add_argument( '--rate'      , dest='rate'      , nargs='?' , type=float , default=None  , help="Discharge dv/min limit")
 
