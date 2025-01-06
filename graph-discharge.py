@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 from glob import glob
 
@@ -7,14 +7,17 @@ import numpy as np
 import pandas as pd
 from math import floor, ceil
 
+show_graph = False
 plot_ah = True
-max_ah = 20 
+
+max_ah = 17
 max_time = 60*4
+
 
 fig = plt.figure()
 # fig.set_axisblow(True)
 ax = fig.add_subplot(1, 1, 1)
-ax.set_title('8 ohm discharge curve')
+ax.set_title('8 ohm discharge - 17 Ah rated')
 
 if plot_ah:
     ax.set_xlim([0, max_ah])
@@ -27,8 +30,8 @@ else:
 
 ax2 = ax.twinx()
 
-y_lo=34
-y_hi=44
+y_hi=40
+y_lo=35
 
 ax.set_ylim([y_lo, y_hi])
 ax.set_yticks(range(y_lo, y_hi))
@@ -51,7 +54,9 @@ for f in sorted(glob('*.csv')):
     # ax2.plot(a['time (m)'],a['wh'],label=f, linestyle='--')
 
 ax.legend()
-fig.set_size_inches(12, 6)
+fig.set_size_inches(14,6)
 plt.tight_layout()
-# plt.show()
-plt.savefig("discharge.png", dpi=150)
+if show_graph:
+    plt.show()
+else:
+    plt.savefig("discharge.png", dpi=150)
