@@ -36,6 +36,9 @@ def discharge_loop(ser, load, discharge):
 
         f = [int("{:02x}".format(c),16) for c in l[5:]]
         # 4570 20 3211 0000 802d 0d0a
+        if not len(f):
+            continue
+
         if f[0] != 32:
             raise RuntimeError('DVM mode?')
 
@@ -77,10 +80,10 @@ def discharge_loop(ser, load, discharge):
 if __name__ == '__main__':
     import argparse
     argp = argparse.ArgumentParser( description = 'battery discharge montoring' )
-    argp.add_argument( '--load'      , dest='load'      , nargs='?' , type=float , default=8.2 , help="Load resistance")
-    argp.add_argument( '--volt'      , dest='discharge' , nargs='?' , type=float , default=20.0 , help="Discharge end voltage")
+    argp.add_argument( '--load'  , dest='load'     , nargs='?', type=float, default=8.2           , help="Load resistance")
+    argp.add_argument( '--volt'  , dest='discharge', nargs='?', type=float, default=35.0          , help="Discharge end voltage")
 
-    argp.add_argument( '--serial', dest='serial', nargs='?', type=str, default='/dev/ttyUSB0', help="Serial Device")
+    argp.add_argument( '--serial', dest='serial'   , nargs='?', type=str  , default='/dev/ttyUSB0', help="Serial Device")
 
     args = argp.parse_args()
 
